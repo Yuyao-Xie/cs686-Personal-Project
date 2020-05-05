@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package edu.usfca.protobuf;
+
+option java_outer_classname = "ReviewOuter";
+
+message Review{
+
+    string business_id = 1;
+
+    float stars = 2;
+
+    string review_id = 3;
+}

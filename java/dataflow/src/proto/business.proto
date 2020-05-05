@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package edu.usfca.protobuf;
+
+message Business{
+
+    string business_id = 1;
+
+    string state = 2;
+
+    float stars = 3;
+
+    repeated string category = 4;
+
+    int64 good_review_count = 5;
+}

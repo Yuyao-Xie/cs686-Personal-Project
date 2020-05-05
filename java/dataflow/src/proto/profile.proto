@@ -1,0 +1,121 @@
+syntax = "proto3";
+
+package edu.usfca.protobuf;
+
+import "common.proto";
+import "event.proto";
+import "vendor/openrtb.proto";
+
+message PurchaserProfile {
+  DeviceId id = 1;
+  
+  // total number of purchase events (for this user).
+  int32 purchase_total = 2; // Do NOT remove this field. It serves as an example, but it will also be tested.
+  
+  // TODO: Copy your proto from project 3 here, and build gradle project to generate Java files.
+  // As a hint, if you had "repeated PurchaseEvent" field, that's too inefficient,
+  // and you should find a more efficient way to represent the intermediate data.
+  //repeated PurchaseEvent purchaseEvent = 3;
+  //map<string, IntermediateInfo> im_list = 3;
+  repeated string bundle = 3;
+  repeated ImInfo im = 4;
+}
+
+message ImInfo{
+
+  int32 amount = 1;
+
+  repeated int32 timestamp = 2;
+
+  int32 count = 3;
+}
+
+// This summarizes IAP amounts/counts for each app bundle.
+message InAppPurchaseProfile {
+  // DO NOT MODIFY THIS PROTO MESSAGE. THIS WILL BE USED AS-IS IN ALL TESTS.
+  
+  // bundle (unique ID for apps)
+  string bundle = 1;
+  
+  // total number of unique purchasers (in this app)
+  int64 num_purchasers = 2;
+  
+  // sum of purchase amounts (in this app)
+  int64 total_amount = 3;
+}
+
+// A mobile device profile.
+message DeviceProfile {
+  reserved 2 to 4, 6 to 8, 13 to 100; // Do NOT modify this.
+  //Do NOT add any more fields to this message (DeviceProfile).
+  
+  // Unique id for each device.
+  DeviceId device_id = 1;
+  
+  // An array of summaries of App Activity.
+  // AppActivity messages must have unique bundles (under the same DeviceProfile).
+  repeated AppActivity app = 5;
+  
+  // Timestamp (in millis) of the first/last device activity.
+  int64 first_at = 9;
+  int64 last_at = 10;
+  
+  // A set of all geo data points we have collected for this user (for "daily" or "lifetime" aggregate).
+  // Our pipeline must ensure that no duplicates exist, for efficiency (proto's "repeated" does not guarantee distinct elements).
+  repeated GeoActivity geo = 11;
+  
+  // Among all GeoActivity data points, we store the last one (latest one) as it could be quite useful.
+  GeoActivity latest_geo = 12;
+  
+  // A message that summarizes in-app activities.
+  // NOTE:
+  // When a DeviceProfile proto is used for "daily" aggregate data, count_per_exchange represents "daily" values.
+  // As such, $count_today == sum of values in $count_per_exchange must be true.
+  // When a DeviceProfile proto is used for "lifetime" aggregate data,
+  // $count_lifetime == sum of vlaues in $count_per_exchange must be true.
+  message AppActivity {
+    reserved 7 to 100; // Do NOT modify this.
+    //Do NOT add any more fields to this message (AppActivity).
+    
+    // Unique store bundle of an app.
+    string bundle = 1;
+    
+    // Timestamp (in millis) of the first/last in-app activity.
+    int64 first_at = 2;
+    int64 last_at = 3;
+    
+    // The number of events received from this app for this user through each exchange (daily or lifetime).
+    // Key is an enum value of Exchange proto (in common.proto).
+    // Value is the number (count).
+    // The values can mean daily/lifetime total, depending on the level of aggregation (daily vs. lifetime).
+    map<int32, int32> count_per_exchange = 6;
+  }
+  
+  // Each GeoActivity message indicates that a user was using some app (from which we received a bid request) in a specific geo.
+  message GeoActivity {
+    // You may add additional fields to this message, if you find it useful.
+    
+    // country & region (from which we received a bid request for a user); these strings are case-sensitive!
+    string country = 1;
+    string region = 2;
+    
+    // TODO: Remove me.
+    int64 ts = 3;
+  }
+}
+
+// AppProfile describes a specific app's info.
+// After we compute lifetime DeviceProfile data, we would produce the latest (lifetime) AppProfile data based on the DP data.
+message AppProfile {
+  // bundle is a unique ID for an app (regardless of OS).
+  string bundle = 1;
+  
+  // Total number of unique users (unique device ids) based on the latest lifetime DeviceProfile data.
+  int32 life_user_count = 2;
+  
+  // Total number of unique users (unique device ids) per exchange, based on the latest lifetime DeviceProfile data.
+  map<int32, int32> life_user_count_per_exchange = 3;
+  
+  // Total number of unique users based on today's daily DeviceProfile data.
+  int32 today_user_count = 4;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package edu.usfca.protobuf;
+
+message Category{
+    string state = 1;
+
+    string title = 2;
+
+    int64 num_of_good_review = 3;
+
+    float average_Star = 4;
+}
