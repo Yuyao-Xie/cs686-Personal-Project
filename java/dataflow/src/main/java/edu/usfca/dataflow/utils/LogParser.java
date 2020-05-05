@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import edu.usfca.protobuf.BusinessOuterClass;
 import edu.usfca.protobuf.ReviewOuter;
@@ -46,7 +47,8 @@ public class LogParser {
     float stars = jsonLog.get("stars").getAsFloat();
     List<String> categories = new ArrayList<>();
     if(jsonLog.get("categories") != null && !jsonLog.get("categories").isJsonNull()){
-      categories = Arrays.asList(jsonLog.get("categories").getAsString().split(","));
+      categories = Arrays.asList(jsonLog.get("categories").getAsString().split(",")).stream().map(String::trim)
+              .map(String::toLowerCase).collect(Collectors.toList());
     }else{
       categories.add("Default Category");
     }
